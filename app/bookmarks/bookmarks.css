@@ -1,0 +1,36 @@
+.folder {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.width-auto {
+  width: auto !important;
+}
+
+.custom-item {
+  line-height: 40px;
+}
+
+* {
+  user-select: none;
+}
+
+.aside {
+  height: 100vh;
+  overflow: auto;
+  position: sticky;
+  top: 0;
+  left: 0;
+  flex-grow: 1;
+}
+
+.search-wrapper {
+  position: sticky;
+  top: 0;
+}
+
+main {
+  width: 70%;
+  max-width: 70%;
+  min-width: 70%;
+}

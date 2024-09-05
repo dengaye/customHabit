@@ -1,0 +1,9 @@
+.yarn-cache
+.idea/
+node_cache
+node_modules
+.idea/
+.vscode
+yarn-error.log
+.cache/
+.DS_Store

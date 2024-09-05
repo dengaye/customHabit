@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../libs/bulma.css" />
+  <link rel="stylesheet" href="./bookmarks.css" />
+  <script src="../../libs/jquery-1.12.4.js"></script>
+</head>
+
+<body class="has-text-primary-00 has-background-white-ter">
+  <div class="is-flex">
+    <aside class="has-background-white aside">
+      <div class="control is-flex p-4 search-wrapper has-background-white">
+        <input class="input is-flex-grow-1 is-inline" type="text" id="search" placeholder="Search" />
+      </div>
+      <section id="bookmarks" class="menu"></section>
+    </aside>
+    <main class="p-4">
+      <section class="card">
+        <header class="card-header card-header-title">每日一览</header>
+        <section class="card-content">
+          <section class="content" id="viewAnchor">
+          </section>
+        </section>
+      </section>
+    </main>
+  </div>
+  <div id="adddialog" class="modal"></div>
+  <div id="editdialog" class="modal"></div>
+  <div id="deletedialog" class="modal"></div>
+  <script src="../constants/index.js"></script>
+  <script src="../utils/utils.js"></script>
+  <script src="../utils/dialog.js"></script>
+  <script src="../utils/components.js"></script>
+  <script src="./bookmarks.js"></script>
+</body>
+
+</html>
