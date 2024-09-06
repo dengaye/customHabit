@@ -115,11 +115,15 @@ function genaratorAnchor(bookmarkNodes) {
     if (bookmark.children && bookmark.children.length > 0) {
       return genaratorAnchor(bookmark.children);
     }
-    return `
-      <section">
-        <a href="${bookmark.url}" target="_blank" class="has-text-black-ter">${bookmark.title}</a>
-      </section>
-    `;
+    const anchor = $(`
+      <a href="${bookmark.url}" target="_blank" class="has-text-black-ter is-flex is-align-items-center">
+      </a>
+    `);
+    anchor.append(createFavicon(bookmark.url, 16));
+    anchor.append(`
+      <span class='pl-2'>${bookmark.title}</span>
+    `);
+    return anchor;
   }
 }
 

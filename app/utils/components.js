@@ -5,7 +5,7 @@ class Anchor {
   constructor(bookmarkNode) {
     this.bookmarkNode = bookmarkNode;
     this.hasAnchor = !!bookmarkNode.url;
-    const className = `level is-justify-content-start is-flex custom-item${this.hasAnchor ? "" : " title"}`
+    const className = `level is-justify-content-start is-flex is-align-items-baseline custom-item${this.hasAnchor ? "" : " title"}`
     this.anchor = $(`<a class="${className}">`);
     this.init();
 
@@ -18,6 +18,7 @@ class Anchor {
     if (!hasAnchor) {
       this.addIcon()
     } else {
+      this.addWebIcon(bookmarkNode.url);
       this.hover()
     }
 
@@ -51,6 +52,10 @@ class Anchor {
 
   addIcon = () => {
     this.anchor.append(fileIcon());
+  }
+
+  addWebIcon = (url) => {
+    this.anchor.append(createFavicon(url))
   }
 }
 

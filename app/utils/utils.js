@@ -15,3 +15,19 @@ function fuzzyMatch(str, search) {
 
   return pattern.test(str);
 }
+
+function faviconURL(pageUrl, size) {
+  const url = new URL(chrome.runtime.getURL("/_favicon/"));
+  url.searchParams.set('pageUrl', pageUrl);
+  url.searchParams.set('size', size);
+  return url.toString();
+}
+
+function createFavicon(pageUrl, size = '14') {
+  const imgSrc = faviconURL(pageUrl, size);
+  const img = $(`<img src="${imgSrc}" crossOrigin="anonymous" />`);
+  img.on("error", () => {
+    img.attr("src", "../../images/favicon.png");
+  });
+  return img
+}

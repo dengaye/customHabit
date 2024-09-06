@@ -7,7 +7,7 @@
     "default_title": "Custom Hubit",
     "default_popup": "app/pop/popup.html"
   },
-  "permissions": ["bookmarks", "tabs", "activeTab", "scripting"],
+  "permissions": ["bookmarks", "tabs", "activeTab", "scripting", "history", "favicon"],
   "chrome_url_overrides": {
     "newtab": "app/bookmarks/bookmarks.html"
   },
