@@ -41,4 +41,27 @@
 }
 ```
 
+### 使用网站图标
+
+权限：`permissions: ['favicon']`
+
+```
+{
+  "permissions": ["favicon"]
+}
+
+```
+
+根据 pageUrl 获取 favicon 
+
+```
+function faviconURL(u) {
+  const url = new URL(chrome.runtime.getURL("/_favicon/"));
+  url.searchParams.set("pageUrl", u);
+  url.searchParams.set("size", "32");
+  return url.toString();
+}
+```
+[消息介绍](https://developer.chrome.com/docs/extensions/how-to/ui/favicons?hl=zh-cn)
+
 ## 样式
