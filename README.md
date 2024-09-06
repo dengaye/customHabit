@@ -1,6 +1,6 @@
-# Bookmark
+# Custom Hubit
 
-> Chrome 打开一个空页面时，展示书签
+> Chrome 打开一个空页面时，自定义喜好
 
 ## 功能
 - 展示所有书签，默认折叠，并带搜索功能
