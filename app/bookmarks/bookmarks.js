@@ -1,17 +1,80 @@
-$('#search').change(function () {
-  $('#bookmarks').empty();
-  showFolder($('#search').val());
+/** 开始 */
+document.addEventListener('DOMContentLoaded', function () {
+  /** 展示书签 */
+  showFolder();
+
+  /** 每日一览 */
+  renderViewAnchor();
+
+  /** 搜索 */
+  onSearch();
 });
 
-function dumpNodeInFolder(bookmarkNode, query) {
+function showFolder(isFolder) {
+  chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
+    $('#bookmarks').append(dumpBookmarksWithFolder(bookmarkTreeNodes, isFolder));
+  });
+}
+
+function renderViewAnchor() {
+  chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
+    $('#viewAnchor').append(genaratorAnchor(bookmarkTreeNodes));
+  });
+}
+
+function onSearch() {
+  let searchTemp = [];
+  let isFolder = false;
+
+  $('#search').change(function () {
+    $('#bookmarks').empty();
+    searchTemp = [];
+    const keyWord = $('#search').val();
+    chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
+      if (keyWord)  {
+        handleSearch(bookmarkTreeNodes, keyWord);
+        isFolder = true;
+      } else {
+        searchTemp = bookmarkTreeNodes;
+        isFolder = false;
+      }
+      $('#bookmarks').append(dumpBookmarksWithFolder(searchTemp, isFolder));
+    });
+  });
+
+  function handleSearch(bookmarkTreeNodes, keyWord) {
+    if (Array.isArray(bookmarkTreeNodes)) {
+      for (let i = 0; i < bookmarkTreeNodes.length; i++) {
+        const bookmarkTreeNode = bookmarkTreeNodes[i];
+        if (bookmarkTreeNode.children && bookmarkTreeNode.children.length) {
+          handleSearch(bookmarkTreeNode.children, keyWord);
+        }
+        if (bookmarkTreeNode.title) {
+          const isFind = fuzzyMatch(bookmarkTreeNode.title, keyWord);
+          if (isFind) {
+            searchTemp.push(bookmarkTreeNode);
+          }
+        }
+      }
+    }
+  }
+}
+
+function dumpBookmarksWithFolder(bookmarkNodes, isFolder) {
+  const list = $('<ul class="menu-list">');
+  for (let i = 0; i < bookmarkNodes.length; i++) {
+    list.attr("data-parentId", bookmarkNodes[i].parentId);
+    list.attr("data-id", bookmarkNodes[i].id);
+    list.append(dumpNodeInFolder(bookmarkNodes[i], isFolder));
+  }
+
+  return list;
+}
+
+function dumpNodeInFolder(bookmarkNode, isFolder) {
   let section = '';
   const hasTitle = !!bookmarkNode.title;
   if (hasTitle) {
-    if (query && !bookmarkNode.children) {
-      if (!fuzzyMatch(bookmarkNode.title, query)) {
-        return '';
-      }
-    }
 
     const anchor = new Anchor(bookmarkNode);
 
@@ -59,9 +122,9 @@ function dumpNodeInFolder(bookmarkNode, query) {
   let ul = "";
 
   if (bookmarkNode.children && bookmarkNode.children.length > 0) {
-    ul = dumpBookmarksWithFolder(bookmarkNode.children, query);
+    ul = dumpBookmarksWithFolder(bookmarkNode.children, isFolder);
     li.append(ul);
-    if (!query) {
+    if (!isFolder) {
       if (!(!bookmarkNode.parentId || bookmarkNode.parentId == 0)) {
         ul.hide();
       }
@@ -77,34 +140,6 @@ function dumpNodeInFolder(bookmarkNode, query) {
   }
 
   return li;
-}
-
-function dumpBookmarksWithFolder(bookmarkNodes, query) {
-  const list = $('<ul class="menu-list">');
-  for (let i = 0; i < bookmarkNodes.length; i++) {
-    list.attr("data-parentId", bookmarkNodes[i].parentId);
-    list.attr("data-id", bookmarkNodes[i].id);
-    list.append(dumpNodeInFolder(bookmarkNodes[i], query));
-  }
-
-  return list;
-}
-
-function showFolder(query) {
-  chrome.bookmarks.getTree(function(bookmarkTreeNodes) {
-    $('#bookmarks').append(dumpBookmarksWithFolder(bookmarkTreeNodes, query));
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  showFolder();
-  renderViewAnchor();
-});
-
-function renderViewAnchor() {
-  chrome.bookmarks.getTree(function(bookmarkTreeNodes) {
-    $('#viewAnchor').append(genaratorAnchor(bookmarkTreeNodes));
-  });
 }
 
 function genaratorAnchor(bookmarkNodes) {
