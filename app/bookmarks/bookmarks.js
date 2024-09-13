@@ -151,7 +151,7 @@ function genaratorAnchor(bookmarkNodes) {
       return genaratorAnchor(bookmark.children);
     }
     const anchor = $(`
-      <a href="${bookmark.url}" target="_blank" class="has-text-black-ter is-flex is-align-items-center">
+      <a href="${bookmark.url}" target="_blank" class="help is-text is-flex is-align-items-center is-size-6">
       </a>
     `);
     anchor.append(createFavicon(bookmark.url, 16));

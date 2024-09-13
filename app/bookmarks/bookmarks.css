@@ -27,10 +27,19 @@
 .search-wrapper {
   position: sticky;
   top: 0;
+  background-color: var(--bulma-body-background-color);
 }
 
 main {
   width: 70%;
   max-width: 70%;
   min-width: 70%;
+}
+
+[data-theme=dark] .aside::-webkit-scrollbar {
+  background-color: var(--bulma-body-background-color);
+}
+
+[data-theme=dark] .aside::-webkit-scrollbar-thumb {
+  background-color: var(--bulma-primary-00);
 }
