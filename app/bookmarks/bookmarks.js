@@ -140,7 +140,7 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
     ul = dumpBookmarksWithFolder(bookmarkNode.children, isFolder);
     li.append(ul);
     if (!isFolder) {
-      if (!(!bookmarkNode.parentId || bookmarkNode.parentId == 0)) {
+      if (!(!bookmarkNode.parentId || bookmarkNode.id == 0)) {
         ul.hide();
       }
     }
