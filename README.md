@@ -3,13 +3,20 @@
 > Chrome 打开一个空页面时，自定义喜好
 
 ## 功能
-- 展示所有书签，默认折叠，并带搜索功能
+- 展示所有书签，默认折叠，并带搜索功能，并且随机展示一条书签
 
 ![reload](./docs/introl.png)
 
-- 随机展示一条书签
+- 对书签进行增、删、改
+
+鼠标聚焦在某一个书签（或者书签文件夹）上，点击鼠标右键会出现一下效果，按需操作
+
+![reload](./docs/operation-add.png)
+![reload](./docs/operation-edit.png)
+
 
 - 点击扩展，可更改当前浏览页面的背景颜色和字体
+
 ![alt text](./docs/popup.png)
 
 ## 开发
