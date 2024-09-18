@@ -184,7 +184,7 @@ class AddDialog extends BasicDialog {
 
   dialogContent = () => {
     return this.commonContent({
-      title: '添加新标签',
+      title: `添加新标签到 ${this.props.bookmarkNode.title}`,
       contentSlot: `
         <section class="modal-card-body">
           ${this.titleInput.createInput()}

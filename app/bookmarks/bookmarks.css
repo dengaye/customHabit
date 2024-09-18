@@ -43,3 +43,13 @@ main {
 [data-theme=dark] .aside::-webkit-scrollbar-thumb {
   background-color: var(--bulma-primary-00);
 }
+
+.operation-wrapper {
+  max-width: 150px !important;
+  position: absolute;
+  display: none;
+}
+
+.operation-wrapper ul {
+  margin-left: 0 !important;
+}

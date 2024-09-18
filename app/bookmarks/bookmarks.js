@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** 搜索 */
   onSearch();
+
+  clickSpaceToHide();
 });
 
 function showFolder(isFolder) {
@@ -31,7 +33,7 @@ function onSearch() {
     searchTemp = [];
     const keyWord = $('#search').val();
     chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
-      if (keyWord)  {
+      if (keyWord) {
         handleSearch(bookmarkTreeNodes, keyWord);
         isFolder = true;
       } else {
@@ -60,6 +62,18 @@ function onSearch() {
   }
 }
 
+
+/** 点击空处消失 */
+function clickSpaceToHide() {
+  $(document).on('click', (event) => {
+    const target = $(`#${OPERATION_WRAPPER_ID_NAME}`);
+
+    if (!target.is(event.target) && target.has(event.target).length === 0 && target.is(":visible")) {
+      target.hide();
+    }
+  })
+}
+
 function dumpBookmarksWithFolder(bookmarkNodes, isFolder) {
   const list = $('<ul class="menu-list">');
   for (let i = 0; i < bookmarkNodes.length; i++) {
@@ -84,10 +98,14 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
 
     const operations = new Operation(bookmarkNode);
 
-    section.hover(
-      () => {
-        anchor.append(operations.options);
-
+    section.contextmenu(
+      (event) => {
+        event.preventDefault();
+        $(`#${OPERATION_WRAPPER_ID_NAME}`).css({
+          'top': `${event.clientY}px`,
+          'left': `${event.clientX}px`
+        }).show();
+        $(`#${OPERATION_WRAPPER_ID_NAME} .content`).empty().append(operations.options);
         const actions = [
           {
             operationIdName: EDIT_OPERATION_ID_NAME,
@@ -110,11 +128,8 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
         ]
 
         operations.handleOperations(actions)
-      },
-      () => {
-        operations.options.remove();
       }
-    )
+    );
   }
 
   const li = $(hasTitle ? '<li>' : '<section>').append(section);

@@ -59,9 +59,6 @@ class Anchor {
   }
 }
 
-const itemClassName = "level-item is-flex-grow-0 width-auto"
-const tagClassName = "tag is-light has-text-weight-normal"
-
 /**
  * 操作
  */
@@ -126,18 +123,18 @@ class Operation {
 
   createAdd = () => {
     return $(`
-      <section class="${itemClassName}">
-        <span id="${ADD_OPERATION_ID_NAME}" class="${tagClassName} is-primary">Add</span>
-      </section>
-    `)
+      <ul class="menu-list">
+        <li class="menu-item is-clickable pb-2" id="${ADD_OPERATION_ID_NAME}">添加</li>
+      </ul>
+    `);
   }
 
   createEdit = () => {
     return $(`
-      <section class="${itemClassName}">
-        <span id="${EDIT_OPERATION_ID_NAME}" class="${tagClassName} is-primary">Edit</span> &nbsp; &nbsp;
-        <span id="${EDLETE_OPERATION_ID_NAME}" class="${tagClassName} is-danger">Delete</span>
-      </section>
-    `)
+      <ul class="menu-list">
+        <li class="menu-item is-clickable pb-2" id="${EDIT_OPERATION_ID_NAME}">编辑</li>
+        <li class="menu-item is-clickable" id="${EDLETE_OPERATION_ID_NAME}">删除</li>
+      </ul>
+    `);
   }
 }

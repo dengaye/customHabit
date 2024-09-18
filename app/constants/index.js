@@ -1,7 +1,7 @@
 /**
  * 链接 hover 时的样式
  */
-const ANCHOR_HOVER_CLASS_NAME = "has-text-link"
+const ANCHOR_HOVER_CLASS_NAME = "has-text-link";
 
 const ADD_DIALOG_ID_NAME = 'adddialog';
 const EDIT_DIALOG_ID_NAME = 'editdialog';
@@ -28,3 +28,6 @@ const DIALOG_ID_NAME_MAP = {
   [OPERATION_TYPE_MAP.EDIT]: EDIT_DIALOG_ID_NAME,
   [OPERATION_TYPE_MAP.DELETE]: DELETE_DIALOG_ID_NAME
 }
+
+/** 操作组件 id */
+const OPERATION_WRAPPER_ID_NAME = 'operationWrapper';
