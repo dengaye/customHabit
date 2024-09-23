@@ -3,9 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
   /** 展示书签 */
   showFolder();
 
-  /** 每日一览 */
-  renderViewAnchor();
-
   /** 搜索 */
   onSearch();
 
@@ -15,12 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function showFolder(isFolder) {
   chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
     $('#bookmarks').append(dumpBookmarksWithFolder(bookmarkTreeNodes, isFolder));
-  });
-}
-
-function renderViewAnchor() {
-  chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
-    $('#viewAnchor').append(genaratorAnchor(bookmarkTreeNodes));
   });
 }
 
@@ -155,26 +146,6 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
   }
 
   return li;
-}
-
-function genaratorAnchor(bookmarkNodes) {
-  if (Array.isArray(bookmarkNodes)) {
-    const length = bookmarkNodes.length - 1;
-    const random = getRandomInt(0, length);
-    const bookmark = bookmarkNodes[random];
-    if (bookmark.children && bookmark.children.length > 0) {
-      return genaratorAnchor(bookmark.children);
-    }
-    const anchor = $(`
-      <a href="${bookmark.url}" target="_blank" class="help is-text is-flex is-align-items-center is-size-6">
-      </a>
-    `);
-    anchor.append(createFavicon(bookmark.url, 16));
-    anchor.append(`
-      <span class='pl-2'>${bookmark.title}</span>
-    `);
-    return anchor;
-  }
 }
 
 function resetData() {
