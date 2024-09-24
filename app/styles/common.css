@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "GowunBatang";
+  src: url('../assets/fonts/GowunBatang-Regular.ttf'), url('../assets/fonts/GowunBatang-Bold.ttf');
+}
+
+@font-face {
+  font-family: "play";
+  src: url('../assets/fonts/Play-Regular.ttf'), url('../assets/fonts/Play-Bold.ttf');
+}
+
+body {
+  font-family: "play", "GowunBatang", serif, cursive;
+}
