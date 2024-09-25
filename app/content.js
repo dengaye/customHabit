@@ -4,7 +4,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const { bgColor, color } = request.data;
       changeBgColor(bgColor, color);
       break;
-    case 'initPage':
+    case 'changeThemeToDark':
+      changeThemeToDark();
+      break;
+    case 'changeThemeToDefault':
       initPage();
       break;
     default:
@@ -20,7 +23,7 @@ function changeBgColor(bgColor, color) {
   let styleInnnerHTML = '';
   if (color) {
     styleInnnerHTML = `
-      body, * {
+      * {
         background-color: ${bgColor} !important;
         ${animation}
         color: ${color} !important;
@@ -28,7 +31,7 @@ function changeBgColor(bgColor, color) {
     `;
   } else {
     styleInnnerHTML = `
-      body, * {
+      * {
         ${animation}
         background-color: ${bgColor} !important;
       }
@@ -39,20 +42,30 @@ function changeBgColor(bgColor, color) {
 
 function initPage() {
   handleCreateStyle(`
-    body, * {
+    * {
       ${animation}
     }
   `);
 }
 
+function changeThemeToDark() {
+  handleCreateStyle(`
+    * {
+      ${animation}
+      filter: invert(1) hue-rotate(.5turn) !important;
+    }
+  `)
+}
+
 function handleCreateStyle(styleInnnerHTML) {
   const hasStyle = document.getElementById(customStyleIdName);
+  console.log("hasStyle", hasStyle)
   if (hasStyle) {
     hasStyle.innerHTML = styleInnnerHTML
   } else {
-    const style = document.createElement('style');
-    document.id = customStyleIdName;
-    style.innerHTML = styleInnnerHTML;
-    document.head.appendChild(style);
+    const styleElement = document.createElement('style');
+    styleElement.id = customStyleIdName;
+    styleElement.innerHTML = styleInnnerHTML;
+    document.head.appendChild(styleElement);
   }
 }
