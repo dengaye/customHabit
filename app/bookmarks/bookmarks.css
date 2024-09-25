@@ -9,6 +9,11 @@
 
 .custom-item {
   line-height: 40px;
+  word-break: break-all;
+}
+
+.break-all {
+  word-break: break-all !important;
 }
 
 * {

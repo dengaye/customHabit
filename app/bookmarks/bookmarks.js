@@ -68,8 +68,6 @@ function clickSpaceToHide() {
 function dumpBookmarksWithFolder(bookmarkNodes, isFolder) {
   const list = $('<ul class="menu-list">');
   for (let i = 0; i < bookmarkNodes.length; i++) {
-    list.attr("data-parentId", bookmarkNodes[i].parentId);
-    list.attr("data-id", bookmarkNodes[i].id);
     list.append(dumpNodeInFolder(bookmarkNodes[i], isFolder));
   }
 
@@ -77,75 +75,104 @@ function dumpBookmarksWithFolder(bookmarkNodes, isFolder) {
 }
 
 function dumpNodeInFolder(bookmarkNode, isFolder) {
-  let section = '';
+  let itemContentElement = '';
+  let itemElement = '';
   const hasTitle = !!bookmarkNode.title;
+  let subListElement = "";
   if (hasTitle) {
+    const anchorIntance = new Anchor(bookmarkNode);
+    const anchor = anchorIntance.anchor;
 
-    const anchor = new Anchor(bookmarkNode);
+    itemContentElement = $('<section>');
 
-    section = $('<section>');
+    itemContentElement.append(anchor);
 
-    section.append(anchor);
-
-    const operations = new Operation(bookmarkNode);
-
-    section.contextmenu(
+    itemContentElement.contextmenu(
       (event) => {
         event.preventDefault();
-        $(`#${OPERATION_WRAPPER_ID_NAME}`).css({
-          'top': `${event.clientY}px`,
-          'left': `${event.clientX}px`
-        }).show();
-        $(`#${OPERATION_WRAPPER_ID_NAME} .content`).empty().append(operations.options);
         const actions = [
           {
-            operationIdName: EDIT_OPERATION_ID_NAME,
-            dialogIdName: EDIT_DIALOG_ID_NAME,
-            type: OPERATION_TYPE_MAP.EDIT
+            operationIdName: ADD_FOLDER_OPERATION_ID_NAME,
+            dialogIdName: CUSTOM_HUBIT_DIALOG,
+            type: OPERATION_TYPE_MAP.ADD_FLODER,
+            text: '添加新文件夹',
+            successCallback: (newBooknode) => {
+              const newAnchor = dumpNodeInFolder(newBooknode);
+              if (subListElement) {
+                subListElement.append(newAnchor).slideDown();
+              } else {
+                const newSubListElement = dumpBookmarksWithFolder([newBooknode]);
+                itemElement.append(newSubListElement);
+                newSubListElement.slideDown();
+              }
+            }
           },
           {
             type: OPERATION_TYPE_MAP.ADD,
             dialogIdName: ADD_DIALOG_ID_NAME,
-            operationIdName: ADD_OPERATION_ID_NAME
+            operationIdName: ADD_OPERATION_ID_NAME,
+            text: '添加新书签',
+            successCallback: (newBooknode) => {
+              const newAnchor = dumpNodeInFolder(newBooknode);
+              subListElement.append(newAnchor).slideDown();
+            }
+          },
+          {
+            operationIdName: EDIT_OPERATION_ID_NAME,
+            dialogIdName: EDIT_DIALOG_ID_NAME,
+            type: OPERATION_TYPE_MAP.EDIT,
+            text: '编辑',
+            successCallback: (newBookmark) => {
+              bookmarkNode = newBookmark;
+              anchorIntance.update(newBookmark);
+            }
           },
           {
             operationIdName: EDLETE_OPERATION_ID_NAME,
             dialogIdName: DELETE_DIALOG_ID_NAME,
             type: OPERATION_TYPE_MAP.DELETE,
+            text: '删除',
             successCallback: () => {
-              anchor.remove();
+              itemElement.remove();
             }
           }
-        ]
+        ];
 
-        operations.handleOperations(actions)
+        const operationsIntance = new Operation(bookmarkNode, actions);
+
+        $(`#${OPERATION_WRAPPER_ID_NAME}`).css({
+          'top': `${event.clientY}px`,
+          'left': `${event.clientX}px`
+        }).show();
+
+        $(`#${OPERATION_WRAPPER_ID_NAME} .content`).empty().append(operationsIntance.content);
+
+        operationsIntance.onClick()
       }
     );
   }
 
-  const li = $(hasTitle ? '<li>' : '<section>').append(section);
-
-  let ul = "";
+  itemElement = $(hasTitle ? `<li date-id="${bookmarkNode.id}">` : '<section>').append(itemContentElement);
 
   if (bookmarkNode.children && bookmarkNode.children.length > 0) {
-    ul = dumpBookmarksWithFolder(bookmarkNode.children, isFolder);
-    li.append(ul);
+    subListElement = dumpBookmarksWithFolder(bookmarkNode.children, isFolder);
+    itemElement.append(subListElement);
     if (!isFolder) {
       if (!(!bookmarkNode.parentId || bookmarkNode.id == 0)) {
-        ul.hide();
+        subListElement.hide();
       }
     }
   }
 
   if (hasTitle) {
-    section.click((e) => {
-      if (ul) {
-        ul.is(":visible") ? ul.slideUp() : ul.slideDown();
+    itemContentElement.click((e) => {
+      if (subListElement) {
+        subListElement.is(":visible") ? subListElement.slideUp() : subListElement.slideDown();
       }
     })
   }
 
-  return li;
+  return itemElement;
 }
 
 function resetData() {

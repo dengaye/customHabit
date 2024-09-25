@@ -118,7 +118,7 @@ class BasicDialog {
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">${title}</p>
+          <p class="modal-card-title break-all is-flex-shrink-1">${title}</p>
         </header>
         ${contentSlot || ""}
         <footer class="modal-card-foot">
@@ -132,6 +132,7 @@ class BasicDialog {
   }
 }
 
+/** 添加书签 */
 class AddDialog extends BasicDialog {
   /**
    * @param {{ dialogIdName, bookmarkNode }} props 
@@ -154,7 +155,7 @@ class AddDialog extends BasicDialog {
     });
   }
 
-  onConfirm = () => {
+  onConfirm = ({ callback }) => {
     const { bookmarkNode } = this.props;
     this.onClickConfirmBtn(async () => {
       const titleValue = this.titleInput.onValidField();
@@ -163,14 +164,15 @@ class AddDialog extends BasicDialog {
         return;
       }
       try {
-        await chrome.bookmarks.create({
+        const newBookmark = await chrome.bookmarks.create({
           parentId: bookmarkNode.id,
           title: titleValue,
           url: urlValue
         });
         this.onHide();
-        // todo
-        window.resetData();
+        if (callback) {
+          callback(newBookmark);
+        }
       } catch (error) {
         this.urlInput.setTip(`${error}`)
       }
@@ -195,52 +197,85 @@ class AddDialog extends BasicDialog {
   }
 };
 
+/** 删除书签 */
 class DeleteDialog extends BasicDialog {
   onConfirm = ({ callback }) => {
     const { bookmarkNode } = this.props;
     this.onClickConfirmBtn(async () => {
-      await chrome.bookmarks.remove(String(bookmarkNode.id));
+      await chrome.bookmarks.removeTree(String(bookmarkNode.id));
       this.onHide();
       if (callback) {
-        callback();
+        callback(bookmarkNode);
       }
     });
   }
   dialogContent = () => {
+    const { url, title} = this.props.bookmarkNode;
+    const isFolder = !url;
     return this.commonContent({
-      title: '删除此标签',
+      title: `删除此${isFolder ? '文件夹' : '标签'} ${title}`,
       confirmClassName: "is-danger"
     })
   }
 }
 
+/** 编辑书签 */
 class EditDialog extends BasicDialog {
+  /**
+   * 
+   * @param {{ dialogIdName, bookmarkNode }} props 
+   */
   constructor(props) {
     super(props);
+    const { title, url } = props.bookmarkNode;
     this.titleInput = new InputWithDialog({
       dialogIdName: this.props.dialogIdName,
       fieldClassName: "js-title-field",
       label: "标题",
       tip: "标题不能为空",
-      value: this.props.bookmarkNode.title
+      value: title,
     });
+    const isFolder = !url;
+    this.isFolder = isFolder;
+    if (!isFolder) {
+      this.urlInput = new InputWithDialog({
+        dialogIdName: this.props.dialogIdName,
+        fieldClassName: "js-url-field",
+        label: "URL",
+        tip: "URL 不能为空",
+        value: url
+      });
+    }
   }
   onInput = () => {
     this.titleInput.onInput();
+    if (this.urlInput) {
+      this.urlInput.onInput();
+    }
   }
-  onConfirm = () => {
+  onConfirm = ({ callback }) => {
     this.onClickConfirmBtn(async () => {
       const titleValue = this.titleInput.onValidField();
+      let urlValue = '';
       if (!titleValue) {
         return;
       }
+      if (this.urlInput) {
+        urlValue = this.urlInput.onValidField();
+        if (!urlValue) {
+          return;
+        }
+      }
       const { bookmarkNode } = this.props;
-      await chrome.bookmarks.update(String(bookmarkNode.id), {
-        title: titleValue
-      });
+      const data = { title: titleValue };
+      if (this.urlInput) {
+        data.url = urlValue;
+      }
+      const newBookmark = await chrome.bookmarks.update(String(bookmarkNode.id), data);
       this.onHide();
-      // todo
-      window.resetData();
+      if (callback) {
+        callback(newBookmark);
+      }
     });
   }
   dialogContent = () => {
@@ -249,8 +284,59 @@ class EditDialog extends BasicDialog {
       contentSlot: `
         <section class="modal-card-body">
           ${this.titleInput.createInput()}
+          ${this.isFolder ? '' : this.urlInput.createInput()}
         </section>
       `,
     })
   }
 }
+
+/** 添加文件夹 */
+class AddFolderDialog extends BasicDialog {
+  /**
+   * @param {{ dialogIdName, bookmarkNode }} props 
+   */
+  constructor(props) {
+    super(props);
+    const { dialogIdName } = this.props;
+    this.folderInput = new InputWithDialog({
+      dialogIdName,
+      fieldClassName: "js-title-field",
+      label: "文件夹名称",
+      tip: "文件夹名称不能为空"
+    });
+  }
+ 
+  onConfirm = ({ callback }) => {
+    const { bookmarkNode } = this.props;
+    this.onClickConfirmBtn(async () => {
+      const folderValue = this.folderInput.onValidField();
+      if (!folderValue) {
+        return;
+      }
+      const newBookmark = await chrome.bookmarks.create({
+        parentId: bookmarkNode.id,
+        title: folderValue
+      });
+      this.onHide();
+      if (callback) {
+        callback(newBookmark);
+      }
+    });
+  }
+
+  onInput = () => {
+    this.folderInput.onInput();
+  }
+
+  dialogContent = () => {
+    return this.commonContent({
+      title: `添加文件夹到 ${this.props.bookmarkNode.title}`,
+      contentSlot: `
+        <section class="modal-card-body">
+          ${this.folderInput.createInput()}
+        </section>
+      `
+    })
+  }
+};

@@ -8,8 +8,6 @@ class Anchor {
     const className = `level is-justify-content-start is-flex is-align-items-baseline custom-item${this.hasAnchor ? "" : " title"}`
     this.anchor = $(`<a class="${className}">`);
     this.init();
-
-    return this.anchor
   }
 
   init = () => {
@@ -22,7 +20,7 @@ class Anchor {
       this.hover()
     }
 
-    anchor.append(bookmarkNode.title);
+    anchor.append(`<span>${bookmarkNode.title}</span>`);
 
     this.click();
   }
@@ -39,15 +37,21 @@ class Anchor {
   }
 
   click = () => {
-    const { anchor, bookmarkNode, hasAnchor } = this;
-    anchor.click(
-      (e) => {
-        if (!hasAnchor) {
-          return
-        };
-        chrome.tabs.create({ url: bookmarkNode.url });
-      }
-    );
+    const { anchor, hasAnchor, bookmarkNode } = this;
+
+    anchor.on('click', () => {
+      if (!hasAnchor) {
+        return
+      };
+      chrome.tabs.create({ url: bookmarkNode.url });
+    })
+  }
+
+  update = (bookmarkNode) => {
+    this.bookmarkNode = bookmarkNode;
+    this.anchor.off('click');
+    this.anchor.empty();
+    this.init();
   }
 
   addIcon = () => {
@@ -63,41 +67,45 @@ class Anchor {
  * 操作
  */
 class Operation {
-  constructor(bookmarkNode) {
-    this.bookmarkNode = bookmarkNode;
-    const options = this.init();
-
-    this.options = options;
-  }
-
-  init = () => {
-    const { bookmarkNode } = this;
-    const hasChildren = !!bookmarkNode.children;
-    const options = hasChildren ? this.createAdd() : this.createEdit();
-
-    const addDialog = new AddDialog({ bookmarkNode, dialogIdName: ADD_DIALOG_ID_NAME });
-    const deleteDialog = new DeleteDialog({ dialogIdName: DELETE_DIALOG_ID_NAME, bookmarkNode })
-    const editDialog = new EditDialog({ dialogIdName: EDIT_DIALOG_ID_NAME, bookmarkNode })
-
-    this.dialogInstanceMap = {
-      [OPERATION_TYPE_MAP.EDIT]: editDialog,
-      [OPERATION_TYPE_MAP.ADD]: addDialog,
-      [OPERATION_TYPE_MAP.DELETE]: deleteDialog
-    }
-
-    return options;
-  }
-
   /**
    * @param {{ operationIdName, dialogIdName, type, successCallback }[]} options 
    */
-  handleOperations = (options) => {
-    options.forEach(option => {
-      const { operationIdName, dialogIdName, type, successCallback } = option;
-      const dialogInstance = this.dialogInstanceMap[type];
+  constructor(bookmarkNode, options) {
+    this.bookmarkNode = bookmarkNode;
+    const content = this.initContent(options);
+    this.content = content;
+  }
+
+  initContent = (options) => {
+    const displayOptions = this.getDisplayOptions(options);
+    this.displayOptions = displayOptions;
+
+    const contents = displayOptions.map((displayOption, index) => {
+      const mbClassName = displayOptions.length - 1 !== index ? ' mb-2' : '';
+      return `
+        <li class="menu-item is-clickable${mbClassName} ${displayOption.className}" id="${displayOption.operationIdName}">
+          ${displayOption.text}
+        </li>
+      `;
+    })
+
+    const content = $(`
+      <ul class="menu-list">
+        ${contents.join('')}
+      </ul>
+    `);
+
+    return content;
+  }
+
+
+  onClick = () => {
+    this.displayOptions.forEach(option => {
+      const { operationIdName, dialogIdName, successCallback } = option;
+      const dialogInstance = this.createDialog(option);
       if (!dialogInstance) return;
 
-      $(`#${operationIdName}`).click((event) => {
+      $(`#${operationIdName}`).on('click', (event) => {
         event.stopPropagation();
         $(`#${dialogIdName}`)
           .empty()
@@ -110,9 +118,9 @@ class Operation {
         }
 
         dialogInstance.onConfirm({
-          callback: () => {
+          callback: (newBooknode) => {
             if (successCallback) {
-              successCallback();
+              successCallback(newBooknode);
             }
           }
         });
@@ -121,20 +129,40 @@ class Operation {
     })
   }
 
-  createAdd = () => {
-    return $(`
-      <ul class="menu-list">
-        <li class="menu-item is-clickable pb-2" id="${ADD_OPERATION_ID_NAME}">添加</li>
-      </ul>
-    `);
+  getDisplayOptions = (options) => {
+    const { bookmarkNode } = this;
+    const tmp = [];
+    /** 是否是文件夹 */
+    const isFolder = !bookmarkNode.url;
+    const folderActions = [OPERATION_TYPE_MAP.ADD_FLODER, OPERATION_TYPE_MAP.ADD, OPERATION_TYPE_MAP.EDIT, OPERATION_TYPE_MAP.DELETE];
+    const linkActions = [OPERATION_TYPE_MAP.EDIT, OPERATION_TYPE_MAP.DELETE];
+    options.forEach(option => {
+      if (isFolder) {
+        if (folderActions.includes(option.type)) {
+          tmp.push(option);
+        }
+      } else {
+        if (linkActions.includes(option.type)) {
+          tmp.push(option);
+        }
+      }
+    });
+    return tmp;
   }
 
-  createEdit = () => {
-    return $(`
-      <ul class="menu-list">
-        <li class="menu-item is-clickable pb-2" id="${EDIT_OPERATION_ID_NAME}">编辑</li>
-        <li class="menu-item is-clickable" id="${EDLETE_OPERATION_ID_NAME}">删除</li>
-      </ul>
-    `);
+  /** 创建弹窗 */
+  createDialog = (option) => {
+    const { dialogIdName, type } = option;
+    const { bookmarkNode } = this;
+    const dialogInstanceMap = {
+      [OPERATION_TYPE_MAP.ADD]: AddDialog,
+      [OPERATION_TYPE_MAP.EDIT]: EditDialog,
+      [OPERATION_TYPE_MAP.DELETE]: DeleteDialog,
+      [OPERATION_TYPE_MAP.ADD_FLODER]: AddFolderDialog,
+    }
+    let DialogInstance = dialogInstanceMap[type];
+    if (DialogInstance) {
+      return new DialogInstance({ bookmarkNode, dialogIdName })
+    };
   }
 }
