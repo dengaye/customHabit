@@ -59,7 +59,6 @@ function changeThemeToDark() {
 
 function handleCreateStyle(styleInnnerHTML) {
   const hasStyle = document.getElementById(customStyleIdName);
-  console.log("hasStyle", hasStyle)
   if (hasStyle) {
     hasStyle.innerHTML = styleInnnerHTML
   } else {

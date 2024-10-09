@@ -99,11 +99,12 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
             successCallback: (newBooknode) => {
               const newAnchor = dumpNodeInFolder(newBooknode);
               if (subListElement) {
-                subListElement.append(newAnchor).slideDown();
+                subListElement.append(newAnchor);
+                expandFolder(itemContentElement, subListElement);
               } else {
                 const newSubListElement = dumpBookmarksWithFolder([newBooknode]);
                 itemElement.append(newSubListElement);
-                newSubListElement.slideDown();
+                expandFolder(itemContentElement, newSubListElement);
               }
             }
           },
@@ -167,13 +168,26 @@ function dumpNodeInFolder(bookmarkNode, isFolder) {
   if (hasTitle) {
     itemContentElement.click((e) => {
       if (subListElement) {
-        subListElement.is(":visible") ? subListElement.slideUp() : subListElement.slideDown();
+        subListElement.is(":visible") ? foldFolder(itemContentElement, subListElement) : expandFolder(itemContentElement, subListElement);
       }
     })
   }
 
   return itemElement;
 }
+
+/** 展开文件夹 */
+function expandFolder(itemContentElement, subListElement) {
+  subListElement.slideDown();
+  itemContentElement.find('.js-angle-icon').css('transform', `rotate(90deg)`);
+}
+
+/** 收齐文件夹 */
+function foldFolder(itemContentElement, subListElement) {
+  subListElement.slideUp();
+  itemContentElement.find('.js-angle-icon').css('transform', `rotate(0deg)`);
+}
+
 
 function resetData() {
   $('#bookmarks').empty();

@@ -8,6 +8,16 @@
   src: url('../assets/fonts/Play-Regular.ttf'), url('../assets/fonts/Play-Bold.ttf');
 }
 
+@font-face {
+  font-family: "OpenSans";
+  src: url('../assets/fonts/OpenSans-Regular.ttf');
+}
+
 body {
-  font-family: "play", "GowunBatang", serif, cursive;
+  font-family: play, FangSong, serif, cursive;
+}
+
+.mu-animation {
+  transition: transform 0.5s ease;
+  transform-origin: center;
 }
