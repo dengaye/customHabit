@@ -19,6 +19,7 @@ function getRandomInt(min, max) {
 }
 
 function fuzzyMatch(str, search) {
+  if (!str) return false
   const pattern = new RegExp(search, "i");
 
   return pattern.test(str);

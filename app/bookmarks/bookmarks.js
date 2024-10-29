@@ -43,7 +43,22 @@ function onSearch() {
           handleSearch(bookmarkTreeNode.children, keyWord);
         }
         if (bookmarkTreeNode.title) {
-          const isFind = fuzzyMatch(bookmarkTreeNode.title, keyWord);
+          let isFind = false;
+          switch (true) {
+            case keyWord.endsWith(':url'): {
+              const realKeyWord = keyWord.replace(/:url$/, "")
+              isFind = fuzzyMatch(bookmarkTreeNode.url, realKeyWord);
+              break;
+            }
+            case keyWord.endsWith(':all'): {
+              const realKeyWord = keyWord.replace(/:all$/, "")
+              isFind = fuzzyMatch(bookmarkTreeNode.title, keyWord) || fuzzyMatch(bookmarkTreeNode.url, realKeyWord);
+              break;
+            }
+            default:
+              isFind = fuzzyMatch(bookmarkTreeNode.title, keyWord);
+              break;
+          }
           if (isFind) {
             searchTemp.push(bookmarkTreeNode);
           }
